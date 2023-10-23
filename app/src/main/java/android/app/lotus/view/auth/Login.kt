@@ -1,90 +1,146 @@
 package android.app.lotus.view.auth
 
 import android.app.lotus.R
-import android.app.lotus.observables.AuthViewModel
+import android.app.lotus.domain.navigation.Routes
+import android.app.lotus.observables.MainViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 
 @Composable
-fun Login(authViewModel: AuthViewModel, navController: NavHostController) {
-    Column(modifier = Modifier.padding(40.dp)) {
-        Image(
-            painter = painterResource(id = R.drawable.lotusmodellen_logo), contentDescription = "Lotus Logo",
-            modifier = Modifier.padding(start = 20.dp)
-        )
+fun Login(navController: NavHostController, mainViewModel: MainViewModel) {
+    Box (
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 25.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-        Spacer(modifier = Modifier.height(40.dp))
-        Text(
-            "Welcome to\nLotus Modellen",
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Normal,
-            color = Color.Black,
-            textAlign = TextAlign.Start,
-            lineHeight = 40.sp,
-            modifier = Modifier.padding(start = 20.dp)
-        )
-        Spacer(modifier = Modifier.height(45.dp))
+            Column (
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 75.dp)
+            ) {
+                Text(
+                    "Welcome to Lotus",
+                    modifier = Modifier.padding(bottom = 30.dp),
+                    style = MaterialTheme.typography.headlineLarge,
+                    textAlign = TextAlign.Start
+                )
+                Text(
+                    "Before using our app, you need to sign in to your account.",
+                    style = MaterialTheme.typography.headlineSmall,
+                    textAlign = TextAlign.Start
+                )
+            }
 
-        LogInForm(authViewModel)
+            Column (
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 50.dp)
+            ) {
+                LogInForm(mainViewModel, navController)
+            }
+
+        }
     }
 }
 
 @Composable
-fun LogInForm(authViewModel: AuthViewModel) {
+fun LogInForm(mainViewModel: MainViewModel, navController: NavHostController) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Center,
     ) {
 
-        val username by authViewModel.email.observeAsState("")
-        val password by authViewModel.password.observeAsState("")
+        val username by mainViewModel.email.observeAsState("")
+        val password by mainViewModel.password.observeAsState("")
 
-        InputField(username, { newText -> authViewModel.updateEmail(newText) }, "Email")
-        InputField(password, { newText -> authViewModel.updatePassword(newText) }, "Password")
+        InputField(username, { newText -> mainViewModel.updateEmail(newText) }, "Email")
+        InputField(password, { newText -> mainViewModel.updatePassword(newText) }, "Password")
 
-        Text("Forgot Password?", textAlign = TextAlign.Start, modifier = Modifier.padding(20.dp))
 
-        Button(
-            onClick = {
-                authViewModel.login()
-            },
-            modifier = Modifier
-                .padding(20.dp)
-                .fillMaxWidth(),
-            colors = ButtonDefaults.outlinedButtonColors(Color(0xFF94007C))
+        Column (
+            horizontalAlignment = Alignment.Start
         ) {
             Text(
-                "Login",
-                fontSize = 20.sp,
-                color = Color.White,
-                modifier = Modifier.padding(10.dp)
+                "Forgot Password?",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(vertical = 20.dp),
+                color = MaterialTheme.colorScheme.primary,
+                textDecoration = TextDecoration.Underline
             )
+        }
+
+        Column (
+            modifier = Modifier.padding(top = 50.dp)
+        ) {
+            AuthButton (text = "Login") {
+                mainViewModel.login()
+            }
+            AuthButton(text = "Register") {
+                navController.navigate(Routes.register)
+            }
         }
 
     }
 }
 
+@Composable
+fun AuthButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.padding(vertical = 10.dp),
+        colors = ButtonDefaults.outlinedButtonColors(MaterialTheme.colorScheme.primary)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.padding(5.dp)
+            )
+        }
+    }
+}
 
 @Composable
 fun InputField(
@@ -95,7 +151,21 @@ fun InputField(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(placeholder) },
-        modifier = Modifier.padding(12.dp)
+        label = {
+            Text(
+                text = placeholder,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodySmall
+            )
+        },
+        textStyle = MaterialTheme.typography.bodySmall,
+        shape = RoundedCornerShape(25.dp),
+
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 10.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+        )
     )
 }

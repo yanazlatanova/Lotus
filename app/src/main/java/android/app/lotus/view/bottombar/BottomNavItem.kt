@@ -14,7 +14,7 @@ sealed class BottomNavItem(
 ) {
     object Home :
         BottomNavItem(
-            "Home",
+            "android.app.lotus.view.home.Home",
             Icons.Rounded.House,
             Routes.home
         )
@@ -28,8 +28,8 @@ sealed class BottomNavItem(
 
     object Profile :
         BottomNavItem(
-            "Account",
+            "Profile",
             Icons.Rounded.Person,
-            Routes.auth
+            Routes.profile
         )
 }

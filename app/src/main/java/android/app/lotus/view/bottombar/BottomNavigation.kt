@@ -1,26 +1,28 @@
 package android.app.lotus.view.bottombar
 
-import android.app.lotus.domain.navigation.Routes
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 
-@Composable
-fun BottomNavigation(navController: NavController, modifier: Modifier = Modifier) {
-    val (currentScreen, setCurrentScreen) = remember { mutableStateOf<BottomNavItem>(BottomNavItem.Home) }
-    val items = listOf(
-        BottomNavItem.Home,
-        BottomNavItem.Statistics,
-        BottomNavItem.Profile
-    )
+val items = listOf(
+    BottomNavItem.Home,
+    BottomNavItem.Statistics,
+    BottomNavItem.Profile
+)
 
-    NavigationBar(modifier = modifier) {
+@Composable
+fun BottomNavigation(navController: NavController) {
+    val (currentScreen, setCurrentScreen) = remember { mutableStateOf<BottomNavItem>(BottomNavItem.Home) }
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.primary
+    ) {
         items.forEach { item ->
             AddItem(
                 screen = item,
